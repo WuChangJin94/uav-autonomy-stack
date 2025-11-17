@@ -122,7 +122,8 @@ pAntler sim_uav_sitl.moos
 ```
 MOOS will publish desired setpoints → ROS → MAVROS → ArduPilot SITL.
 
-### Running on Jetson Orin Nano (Real Drone)
+### Running in HITL
+On Jetson Orin Nano (Real Drone)
 1. Flash JetPack and bring up Ubuntu (Jetson Orin Nano).
 2. Clone this repo on the Jetson.
 3. Install ROS Noetic (or use Docker via docker/Dockerfile.jetson_orin).
