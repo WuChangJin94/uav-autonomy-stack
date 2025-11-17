@@ -73,4 +73,69 @@ End-to-end drone autonomy stack combining:
 ```bash
 git clone https://github.com/<your-user>/uav-autonomy-stack.git
 cd uav-autonomy-stack
+git submodule add https://github.com/ArduPilot/ardupilot.git ardupilot
+```
 
+
+### 2. Build ROS Workspace (PC / x86)
+
+```bash
+cd ros_ws
+rosws_path=$(pwd)
+mkdir -p src
+cd src
+
+# (Optional) clone mavros & moos-ros-bridge here if not installed globally
+# git clone https://github.com/mavlink/mavros.git
+# git clone https://github.com/udecrobotics/moos-ros-bridge.git
+
+cd "$rosws_path"
+catkin_make
+source devel/setup.bash
+```
+
+### 3. Install Dependencies
+
+- ROS Noetic (desktop-full or base + required packages)
+- MAVROS + geographiclib datasets
+- MOOS-IvP (built from source or system packages)
+- Pozyx Python library (pypozyx) and Pozyx ROS node (for real UWB)
+
+---
+
+### Running in SITL
+1. Start ArduPilot SITL (example):
+```bash
+cd ardupilot/ArduCopter
+sim_vehicle.py -v ArduCopter -f gazebo-iris --console --map
+```
+2. In another terminal, bring up ROS stack:
+```bash
+cd uav-autonomy-stack/ros_ws
+source devel/setup.bash
+roslaunch uav_autonomy sitl_bringup.launch
+```
+3. Start MOOS mission:
+```bash
+cd uav-autonomy-stack/moos/missions
+pAntler sim_uav_sitl.moos
+```
+MOOS will publish desired setpoints → ROS → MAVROS → ArduPilot SITL.
+
+### Running on Jetson Orin Nano (Real Drone)
+1. Flash JetPack and bring up Ubuntu (Jetson Orin Nano).
+2. Clone this repo on the Jetson.
+3. Install ROS Noetic (or use Docker via docker/Dockerfile.jetson_orin).
+4. Build ros_ws as above.
+5. Connect flight controller via USB and configure serial (e.g., /dev/ttyACM0).
+6. Launch hardware stack:
+```bash
+cd uav-autonomy-stack/ros_ws
+source devel/setup.bash
+roslaunch uav_autonomy jetson_bringup.launch
+```
+7. Start MOOS mission for hardware:
+```bash
+cd uav-autonomy-stack/moos/missions
+pAntler hw_uav_jetson.moos
+```
